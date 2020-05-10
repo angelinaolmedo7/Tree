@@ -24,6 +24,8 @@ class BinaryTreeNode(object):
         """Return the height of this node (the number of edges on the longest
         downward path from this node to a descendant leaf node).
         TODO: Best and worst case running time: ??? under what conditions?"""
+        if self.is_leaf():
+            return 0
         # TODO: Check if left child has a value and if so calculate its height
         left_height = 0
         if self.left is not None:
