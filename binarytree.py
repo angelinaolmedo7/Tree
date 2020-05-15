@@ -211,11 +211,113 @@ class BinarySearchTree(object):
 
     def delete(self, item):
         """Remove given item from this tree, if present, or raise ValueError.
-        TODO: Best case running time: ??? under what conditions?
-        TODO: Worst case running time: ??? under what conditions?"""
+        TODO: Best case running time: O(1) if the tree is empty :)
+        TODO: Worst case running time: O(bad) if it has to go through any
+            of my code"""
         # TODO: Use helper methods and break this algorithm down into 3 cases
         # based on how many children the node containing the given item has and
         # implement new helper methods for subtasks of the more complex cases
+
+        # Empty tree:
+        if self.root is None:
+            raise ValueError("this bitch empty, yeet")
+
+        # Only one node
+        elif self.root.is_leaf():
+            if self.root.data == item:
+                self.root = None
+                self.size = -1
+                return
+            else:
+                raise ValueError("doesn't exist :/")
+
+        # Target is root
+        elif self.root.data == item:
+            self.delete_root(self.root)
+            return
+
+        node = self._find_node_recursive(item, self.root)  # should be O(n)
+        if node is None:
+            raise ValueError("doesn't exist :/")
+
+        parent = self._find_parent_node_recursive(item, self.root)
+        # If the node exists and is not the root, it has a parent
+        if parent is None:
+            raise ValueError("something's gone terribly wrong")
+
+        # Node has no children
+        if node.is_leaf():
+            # Remove from parent
+            if item < parent.data:
+                parent.left = None
+            else:
+                parent.right = None
+            return
+
+        # Node has two children
+        elif node.left is not None and node.right is not None:
+            self.delete_with_two_children(parent, node)
+
+        # Node has one child
+        else:
+            self.delete_with_one_child(parent, node)
+
+    def delete_with_one_child(self, parent, node):
+        if node.left is not None and node.right is None:
+            if node.data < parent.data:
+                parent.left = node.left
+            else:
+                parent.right = node.left
+        elif node.left is None and node.right is not None:
+            if item < parent.data:
+                parent.left = node.right
+            else:
+                parent.right = node.right
+        else:
+            raise ValueError("you used this function bad")
+
+    def delete_with_two_children(self, parent, node):
+        # We want to replace node with the data from the leftmost child on its
+        # right branch
+        current_node = node.right
+        while current_node.left is not None:
+            current_node = current_node.left
+        # Now current_node is leftmost child
+        data = current_node.data
+        self.delete(data)  # Won't have two children
+
+        if node.data < parent.data:
+            parent.left.data = data
+        else:
+            parent.right.data = data
+
+    def delete_root(self, node):
+        # Node has no children
+        if node.is_leaf():
+            # Remove from root
+            self.root = None
+            return
+
+        # Node has two children
+        elif node.left is not None and node.right is not None:
+            # We want to replace root with the data from the leftmost child on
+            # its right branch
+            current_node = node.right
+            while current_node.left is not None:
+                current_node = current_node.left
+            # Now current_node is leftmost child
+            data = current_node.data
+            self.delete(data)  # Won't have two children
+
+            self.root.data = data
+            return
+
+        # Node has one child
+        else:
+            if node.left is not None and node.right is None:
+                self.root = node.left
+            elif node.left is None and node.right is not None:
+                self.root = node.right
 
     def items_in_order(self):
         """Return an in-order list of all items in this binary search tree."""
